@@ -39,4 +39,3 @@ services:
          awslogs-stream-prefix: hasura
 volumes:
   db_data:
-

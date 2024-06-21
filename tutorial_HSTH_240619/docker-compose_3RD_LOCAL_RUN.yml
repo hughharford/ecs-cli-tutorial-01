@@ -7,20 +7,12 @@ services:
     - db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgrespassword
-    logging:
-      driver: awslogs
-      options:
-         awslogs-group: tutorial
-         awslogs-region: eu-west-2
-         awslogs-stream-prefix: hasura-postgres
   graphql-engine:
     image: hasura/graphql-engine:v1.3.3
     ports:
     - "80:8080"
     depends_on:
     - "postgres"
-    links:
-      - postgres
     restart: always
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
@@ -31,12 +23,5 @@ services:
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-    logging:
-      driver: awslogs
-      options:
-         awslogs-group: tutorial
-         awslogs-region: eu-west-2
-         awslogs-stream-prefix: hasura
 volumes:
   db_data:
-

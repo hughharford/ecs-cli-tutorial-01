@@ -5,7 +5,7 @@ KEY_PAIR=tutorial-cluster
       --capability-iam \
       --size 2 \
       --instance-type t3a.small \
-      --tags project=tutorial-cluster,owner=raphael \
+      --tags project=tutorial-cluster,owner=numberONE \
       --cluster-config tutorial \
       --ecs-profile tutorial \
       --force
