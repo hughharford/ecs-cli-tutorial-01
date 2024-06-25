@@ -30,6 +30,8 @@ vpc_sg="$(aws ec2 describe-security-groups  \
 --filters Name=tag:project,Values=tutorial-cluster \
 | jq '.SecurityGroups[].GroupId' | xargs echo)"
 
+VPC_SG="sg-02e872e5a8fb60cfb" # manually recorded, but using command above
+
 aws ec2 authorize-security-group-ingress \
 --group-id $efs_sg \
 --protocol tcp \

@@ -168,43 +168,12 @@ aws efs create-file-system \
 
 Worked nicely, once FullAccess for EFS ElasticFileSystem was added to the User Group
 
-REMEMBER TO CAPTURE OUTPUT, NEED fs REFERENCE:
+REMEMBER TO CAPTURE OUTPUT, NEED fs REFERENCE:...
 
-{
-    "OwnerId": "610968622525",
-    "CreationToken": "c02c56a7-fedf-4d66-8a99-be74882e58da",
-    "FileSystemId": "fs-0e0f316985e3080f2",
-    "FileSystemArn": "arn:aws:elasticfilesystem:us-west-1:610968622525:file-system/fs-0e0f316985e3080f2",
-    "CreationTime": "2024-06-20T10:43:51+01:00",
-    "LifeCycleState": "creating",
-    "Name": "hasura-db-filesystem",
-    "NumberOfMountTargets": 0,
-    "SizeInBytes": {
-        "Value": 0,
-        "ValueInIA": 0,
-        "ValueInStandard": 0,
-        "ValueInArchive": 0
-    },
-    "PerformanceMode": "generalPurpose",
-    "Encrypted": true,
-    "KmsKeyId": "arn:aws:kms:us-west-1:610968622525:key/52d11729-6640-431d-b7bc-13b0e0419dca",
-    "ThroughputMode": "bursting",
-    "Tags": [
-        {
-            "Key": "Name",
-            "Value": "hasura-db-filesystem"
-        }
-    ],
-    "FileSystemProtection": {
-        "ReplicationOverwriteProtection": "ENABLED"
-    }
-}
 
 ###############################################################################
 #         MANUALLY CREATED EFS FILESYSTEM
 ###############################################################################
-
-fs-024a997f169f89b64 # OUCH, CREATED IT IN us-west-1...
 
 hasura-db-filesystem-manual (fs-027a8594c30ceddd6)
 fs-027a8594c30ceddd6
@@ -259,3 +228,101 @@ efs_sg=$(aws efs describe-mount-targets --file-system-id fs-0fe01fbe930d1969b \
 | jq ".MountTargets[0].MountTargetId" \
   | xargs -IMOUNTG aws efs describe-mount-target-security-groups \
   --mount-target-id MOUNTG | jq ".SecurityGroups[0]" | xargs echo )
+
+
+
+
+### GOT PAST THIS VIA SCRIPTS.... JUST CANNOT GET THE SERVICE TO START
+# 
+sh 03_up.sh 
+
+Just doesn't complete...
+
+### AWS ECS definitely shows db_data as a volume attached to the tutorial service 
+# So something definitely working...
+
+# TRYING AGAIN, COPY FROM THE WEB REF then adjust:
+
+ecs-cli compose --project-name tutorial  --file docker-compose.yml \
+ --debug service up  \
+--deployment-max-percent 100 --deployment-min-healthy-percent 0 \
+  --region eu-west-2 --ecs-profile tutorial \
+--cluster-config tutorial --create-log-groups
+
+RESPONSE:
+
+EBU[0000] Parsing the compose yaml...                  
+DEBU[0000] Docker Compose version found: 3              
+DEBU[0000] Parsing v3 project...                        
+WARN[0000] Skipping unsupported YAML option for service...  option name=restart service name=postgres
+WARN[0000] Skipping unsupported YAML option for service...  option name=depends_on service name=graphql-engine
+WARN[0000] Skipping unsupported YAML option for service...  option name=restart service name=graphql-engine
+DEBU[0000] Parsing the ecs-params yaml...               
+DEBU[0000] Parsing the ecs-registry-creds yaml...       
+DEBU[0000] Transforming yaml to task definition...      
+DEBU[0000] Finding task definition in cache or creating if needed  TaskDefinition="
+{\n  ContainerDefinitions: 
+  [{\n      
+    Command: [],\n
+    Cpu: 0,\n
+    DnsSearchDomains: [],\n
+    DnsServers: [],\n
+    DockerSecurityOptions: [],\n
+    EntryPoint: [],\n
+    Environment: [{\n
+    Name: \"POSTGRES_PASSWORD\",\n
+    Value: \"postgrespassword\"\
+  }],\n
+  Essential: true,\n
+  ExtraHosts: [],\n
+  Image: \"postgres:12\",\n
+  Links: [],\n
+  LinuxParameters: {\n
+    Capabilities: {\n\n
+                  },\n
+    Devices: []\n
+    },\n
+  LogConfiguration: {\n
+    LogDriver: \"awslogs\",\n
+            Options: {\n
+              awslogs-group: \"tutorial\",\n
+              awslogs-region: \"eu-west-2\",\n
+              awslogs-stream-prefix: \"hasura-postgres\"\name
+                    }\n      
+                    },\n
+  Memory: 512,\n
+  MountPoints: [{\n
+                ContainerPath: \"/var/lib/postgresql/data\",\n
+                ReadOnly: false,\n
+                SourceVolume: \"db_data\"\n
+                }],\n
+  Name: \"postgres\",\n
+  Privileged: false,\n
+  PseudoTerminal: false,\n
+  ReadonlyRootFilesystem: false\n
+},
+  {\n
+    Command: [],\n
+    Cpu: 0,\n
+    DnsSearchDomains: [],\n
+    DnsServers: [],\n
+    DockerSecurityOptions: [],\n
+    EntryPoint: [],\n
+    Environment: [\n
+      {\n
+        Name: \"HASURA_GRAPHQL_DATABASE_URL\",\n
+        Value: \"postgres://postgres:postgrespassword@postgres:5432/postgres\"\n
+      },\n
+      {\n
+        Name: \"HASURA_GRAPHQL_ENABLE_CONSOLE\",\n
+        Value: \"true\"\n
+      },\n        {\n          Name: \"HASURA_GRAPHQL_DEV_MODE\",\n          Value: \"true\"\n        },\n        {\n          Name: \"HASURA_GRAPHQL_ENABLED_LOG_TYPES\",\n          Value: \"startup, http-log, webhook-log, websocket-log, query-log\"\n        }\n      ],\n      Essential: true,\n      ExtraHosts: [],\n      Image: \"hasura/graphql-engine:v1.3.3\",\n      Links: [\"postgres\"],\n      LinuxParameters: {\n        Capabilities: {\n\n        },\n        Devices: []\n      },\n      LogConfiguration: {\n        LogDriver: \"awslogs\",\n        Options: {\n          awslogs-region: \"eu-west-2\",\n          awslogs-stream-prefix: \"hasura\",\n          awslogs-group: \"tutorial\"\n        }\n      },\n      Memory: 512,\n      Name: \"graphql-engine\",\n      PortMappings: [{\n          ContainerPort: 8080,\n          HostPort: 80,\n          Protocol: \"tcp\"\n        }],\n      Privileged: false,\n      PseudoTerminal: false,\n      ReadonlyRootFilesystem: false\n    }],\n  Cpu: \"\",\n  ExecutionRoleArn: \"\",\n  Family: \"tutorial\",\n  Memory: \"\",\n  NetworkMode: \"bridge\",\n  RequiresCompatibilities: [\"EC2\"],\n  TaskRoleArn: \"\",\n  Volumes: [{\n      EfsVolumeConfiguration: {\n        AuthorizationConfig: {\n\n        },\n        FileSystemId: \"fs-027a8594c30ceddd6\",\n        TransitEncryption: \"ENABLED\"\n      },\n      Name: \"db_data\"\n    }]\n}"
+DEBU[0000] cache miss                                    taskDef="{\n\n}" taskDefHash=51d998e631e1d6548ad311d5c1e6603d
+INFO[0000] Using ECS task definition                     TaskDefinition="tutorial:7"
+WARN[0000] Failed to create log group tutorial in eu-west-2: The specified log group already exists 
+WARN[0000] Failed to create log group tutorial in eu-west-2: The specified log group already exists 
+INFO[0000] Updated the ECS service with a new task definition. Old containers will be stopped automatically, and replaced with new ones  deployment-max-percent=100 deployment-min-healthy-percent=0 desiredCount=1 force-deployment=false service=tutorial
+
+
+
+

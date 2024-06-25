@@ -1,0 +1,160 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-2:610968622525:task-definition/tutorial:6",
+    "containerDefinitions": [
+        {
+            "name": "graphql-engine",
+            "image": "hasura/graphql-engine:v1.3.3",
+            "cpu": 0,
+            "memory": 512,
+            "links": [
+                "postgres"
+            ],
+            "portMappings": [
+                {
+                    "containerPort": 8080,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "entryPoint": [],
+            "command": [],
+            "environment": [
+                {
+                    "name": "HASURA_GRAPHQL_ENABLED_LOG_TYPES",
+                    "value": "startup, http-log, webhook-log, websocket-log, query-log"
+                },
+                {
+                    "name": "HASURA_GRAPHQL_ENABLE_CONSOLE",
+                    "value": "true"
+                },
+                {
+                    "name": "HASURA_GRAPHQL_DATABASE_URL",
+                    "value": "postgres://postgres:postgrespassword@postgres:5432/postgres"
+                },
+                {
+                    "name": "HASURA_GRAPHQL_DEV_MODE",
+                    "value": "true"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "linuxParameters": {
+                "capabilities": {
+                    "add": [],
+                    "drop": []
+                },
+                "devices": []
+            },
+            "privileged": false,
+            "readonlyRootFilesystem": false,
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "pseudoTerminal": false,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "tutorial",
+                    "awslogs-region": "eu-west-2",
+                    "awslogs-stream-prefix": "hasura"
+                }
+            },
+            "systemControls": []
+        },
+        {
+            "name": "postgres",
+            "image": "postgres:12",
+            "cpu": 0,
+            "memory": 512,
+            "links": [],
+            "portMappings": [],
+            "essential": true,
+            "entryPoint": [],
+            "command": [],
+            "environment": [
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "value": "postgrespassword"
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "db_data",
+                    "containerPath": "/var/lib/postgresql/data",
+                    "readOnly": false
+                }
+            ],
+            "volumesFrom": [],
+            "linuxParameters": {
+                "capabilities": {
+                    "add": [],
+                    "drop": []
+                },
+                "devices": []
+            },
+            "privileged": false,
+            "readonlyRootFilesystem": false,
+            "dnsServers": [],
+            "dnsSearchDomains": [],
+            "extraHosts": [],
+            "dockerSecurityOptions": [],
+            "pseudoTerminal": false,
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "tutorial",
+                    "awslogs-region": "eu-west-2",
+                    "awslogs-stream-prefix": "hasura-postgres"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "tutorial",
+    "networkMode": "bridge",
+    "revision": 6,
+    "volumes": [
+        {
+            "name": "db_data",
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-027a8594c30ceddd6",
+                "rootDirectory": "/",
+                "transitEncryption": "ENABLED",
+                "authorizationConfig": {}
+            }
+        }
+    ],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.efsAuth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.efs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.25"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2"
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "registeredAt": "2024-06-21T13:56:30.682Z",
+    "registeredBy": "arn:aws:iam::610968622525:user/numberONE",
+    "tags": []
+}
